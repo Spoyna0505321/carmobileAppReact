@@ -1,47 +1,57 @@
-import { StyleSheet } from 'react-native';
-
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
-
+import { useCameraPermissions } from 'expo-camera';
+import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Explore() {
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const isPermissionGranted = Boolean(permission?.granted);
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          About Us
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      
-    </ParallaxScrollView>
+    <SafeAreaView style={styleSheet.container}>
+      <StatusBar style="auto" />
+
+      <ThemedText style={styleSheet.mainText}>Expo QR Code Scanner</ThemedText>
+
+      <Pressable style={[styleSheet.mainBtn, styleSheet.btnGreen]} onPress={requestPermission}>
+        <ThemedText>Request Permission</ThemedText>
+      </Pressable>
+
+      <Pressable onPress={
+        () => {
+          router.replace("../qrscan");
+        }
+      } style={[styleSheet.mainBtn, styleSheet.btnYellow, { opacity: isPermissionGranted ? 1 : 0.5 }]} disabled={!isPermissionGranted} >
+        <ThemedText>Scan Code</ThemedText>
+      </Pressable>
+
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+const styleSheet = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    rowGap: 20
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  mainBtn: {
+    width: 200,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
+  btnGreen: {
+    backgroundColor: "#0BCD4C",
+  },
+  btnYellow: {
+    backgroundColor: "yellow",
+  },
+  mainText: {
+    fontSize: 20,
+    fontWeight: "bold"
+  }
 });

@@ -5,16 +5,45 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
 import { router } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 import { Button, StyleSheet, View } from 'react-native';
-
-export default function Home() {
+export default  function Profile() {
   const logout = async  () =>  {
     await SecureStore.deleteItemAsync("access");
     await SecureStore.deleteItemAsync("refresh");
     router.replace("/(auth)/login")
   }
+  
+  const [user, setUser] = useState<any>(null);
+  const loadProfile = async () => {
+    const token = await SecureStore.getItemAsync("access");
 
-  return (
+    const response = await fetch(
+        "http://172.20.10.8:8080/api/profile/",
+        {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+        const data = await response.json();
+        console.log(response.status);
+        console.log(data);
+        setUser(data);
+  };
+  //component ekrana geldikten sonra çalıştır
+  useEffect(() => {
+    loadProfile();
+    }, []);
+  if (!user) {
+    return (
+        <ThemedText>Loading...</ThemedText>
+    );
+  }
+  else{
+    return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
@@ -25,16 +54,27 @@ export default function Home() {
           style={styles.headerImage}
         />
       }>
+     
       <ThemedView style={styles.titleContainer}>
         <ThemedText
           type="title"
           style={{
             fontFamily: Fonts.rounded,
           }}>
-          About Us
+          {user.email}
+    
         </ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText
+          type="title"
+          style={{
+            fontFamily: Fonts.rounded,
+          }}>
+          {user.name}
+    
+        </ThemedText>
+      </ThemedView>
       <View style={styles.buttonSpacing}>
                 <Button title="Logout" onPress={logout} color="#4F46E5" />
       </View>
@@ -42,6 +82,10 @@ export default function Home() {
       
     </ParallaxScrollView>
   );
+
+  }
+
+  
 }
 
 const styles = StyleSheet.create({
