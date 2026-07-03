@@ -1,0 +1,111 @@
+{
+  "home": "Ana Sayfa",
+  "profile": "Profil",
+  "discover": "Keşfet",
+  "about": "Hakkında",
+
+  "locked": "Kilitli",
+  "unlocked": "Açık",
+
+  "openDoors": "Kapıları Aç",
+  "closeDoors": "Kapıları Kilitle",
+
+  "turnLightsOn": "Işıkları Aç",
+  "turnLightsOff": "Işıkları Kapat",
+
+  "turnClimateOn": "Klimayı Aç",
+  "turnClimateOff": "Klimayı Kapat",
+
+  "findCar": "Konumu Bul",
+
+  "battery": "Şarj Durumu",
+  "range": "Kalan Menzil",
+
+  "quickControls": "HIZLI KONTROLLER",
+
+  "loading": "Yükleniyor...",
+  "darkMode": "Koyu Tema",
+  "lightMode": "Açık Tema",
+  "language": "Dil",
+  "logout": "Çıkış Yap",
+   
+  "appName": "Car Mobile App",
+  "version": "Sürüm",
+  "aboutDescription": "Car Mobile App, aracınızı mobil cihazınızdan güvenli ve kolay bir şekilde yönetebilmeniz için geliştirilmiş modern bir uygulamadır. Araç bilgilerinizi görüntüleyebilir, temel kontrolleri gerçekleştirebilir ve aracınıza hızlıca bağlanabilirsiniz.",
+  "terms": "Kullanım Koşulları",
+  "privacy": "Gizlilik Politikası",
+  "website": "Resmi Web Sitesi",
+  "copyright": "© 2026 Car Mobile App. Tüm hakları saklıdır.",
+  "comingSoon": "Bu özellik yakında eklenecek.",
+    "explore": "Keşfet",
+  "exploreSubtitle": "Aracınız ve ötesi için yeni deneyimler",
+
+  "chargingStations": "YAKINDAKİ ŞARJ NOKTALARI",
+  "fastCharge": "HIZLI ŞARJ",
+  "supercharger": "Supercharger İstanbul",
+  "superchargerDesc": "4/6 İstasyon Kullanılabilir • 12 km uzakta",
+
+  "softwareUpdates": "YAZILIM VE YÜKSELTMELER",
+  "fsd": "Full Self-Driving",
+  "fsdDesc": "Gelişmiş Otopilot ve Şerit Değiştirme",
+
+  "rearHeating": "Arka Isıtma",
+  "rearHeatingDesc": "Soğuk günler için arka koltuk aktivasyonu",
+
+  "programs": "PROGRAMLAR",
+  "inviteFriend": "Arkadaşını Davet Et",
+  "inviteFriendDesc": "Her başarılı davette 1.500 km ücretsiz şarj kazan.",
+
+  "exploreAlertTitle": "Keşfet",
+  "exploreAlertMessage": "{{title}} detay ekranına yönlendiriliyorsunuz.",
+    "login": "Giriş Yap",
+  "register": "Kayıt Ol",
+  "email": "E-posta",
+  "password": "Şifre",
+  "forgotPassword": "Şifremi Unuttum",
+    "loginTitle": "Yolculuk, arabayı sev.",
+
+  "noAccount": "Hesabın yok mu?",
+  "signup": "Kayıt ol",
+
+  "resetNow": "Şimdi sıfırla!",
+
+  "emailRequired": "E-posta zorunlu.",
+  "invalidEmail": "Geçerli bir e-posta girin",
+  "passwordRequired": "Şifre zorunlu.",
+
+  "wrongCredentials": "E-posta veya şifre hatalı.",
+  "invalidRequest": "Geçersiz istek.",
+  "serverError": "Sunucu hatası.",
+  "somethingWrong": "Bir şeyler yanlış gitti.",
+
+  "timeoutTitle": "Zaman Aşımı",
+  "timeoutMessage": "Sunucu cevap vermedi.",
+  "errorTitle": "Hata",
+  "connectionError": "Beklenmeyen hata.",
+  "registerTitle": "Şimdi Kayıt Ol!",
+  "name": "İsim",
+
+  "haveAccount": "Hesabın var mı?",
+
+  "nameRequired": "İsim zorunlu.",
+
+  "emailExists": "Bu e-posta zaten kayıtlı.",
+
+
+  "success": "Başarılı",
+  "accountCreated": "Hesap oluşturuldu!",
+    "resetPasswordTitle": "Şifre Sıfırla",
+
+  "sendEmail": "E-posta Gönder",
+  "backTo": "Geri dön",
+
+
+  "userNotFound": "Kullanıcı bulunamadı",
+
+  "resetEmailSent": "Sıfırlama maili gönderildi"
+
+
+
+ 
+}
