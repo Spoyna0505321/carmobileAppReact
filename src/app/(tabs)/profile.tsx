@@ -1,14 +1,14 @@
 import { ThemedText } from '@/components/themed-text';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Image, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, RefreshControl, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from "../LanguageContext";
 import { useTheme } from '../ThemeContext';
-
 export default  function Profile() {
   const { t } = useTranslation();
   const { language, changeLanguage } = useLanguage();
@@ -41,16 +41,117 @@ const handleLanguagePress = () => {
     ]
   );
 };
-
+  const [refreshing, setRefreshing] = useState(false);
   const controller = new AbortController();
   const [userError,setuserError] = useState("");
   const [user, setUser] = useState<any>(null);
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { isDarkMode, setIsDarkMode, theme } = useTheme();
   const timeout = setTimeout(() => {
       controller.abort();
     }, 10000);
 
+  const pickImage = async () => {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
   
+      if (!permissionResult.granted) {
+        Alert.alert('Permission required', 'Permission to access the media library is required.');
+        return;
+      }
+  
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      console.log(result);
+  
+      if (!result.canceled) {
+         setImage(result.assets[0]);
+      }
+      else{
+         setImage(null);
+         return;
+      }
+      const asset = result.assets[0];
+      if (
+        image &&
+        image.assetId &&
+        asset.assetId &&
+        image.assetId === asset.assetId
+      ) {
+        Alert.alert("Bilgi", "Bu fotoğraf zaten seçili.");
+        return;
+      }
+
+      // State'i güncelle
+      setImage(asset);
+
+      const formData = new FormData();
+      if (image) {
+          formData.append(
+              "image",
+              {
+                  uri: image.uri,
+                  name: image.fileName ?? "profile.jpg",
+                  type: image.mimeType ?? "image/jpeg",
+              } as any
+          );
+      }
+      const token = await SecureStore.getItemAsync("access");
+          const controller = new AbortController();
+          const timeout = setTimeout(() => {
+            controller.abort();
+          }, 10000);
+          try{
+              const response = await fetch(
+              "http://192.168.1.138:8080/api/updateImage/",
+              {
+                  method: "PUT",
+                  headers: {
+          
+                      Authorization: `Bearer ${token}`,
+                  },
+                  body: formData,
+                  signal: controller.signal 
+              }
+          );
+          clearTimeout(timeout);
+           if (!response.ok) {
+              switch (response.status) {
+                case 401:
+                  setuserError("User session expired");
+                  router.replace("/(auth)/login");
+                  break;
+      
+                case 500:
+                  setuserError("Server error. Please try again later.");
+                  router.replace("/(tabs)/Home");
+                  break;
+      
+                default:
+                  setuserError("Something went wrong.");
+                  router.replace("/(tabs)/Home");
+                  break;
+              }
+              
+              return;
+            } 
+            const data = await response.json();
+            router.replace('/(tabs)/Home');
+              
+          }catch (error: any) {
+             
+                clearTimeout(timeout);
+                if (error.name === "AbortError") {
+                  Alert.alert("Request Timeout", "The server did not respond. Please try again.");
+                } else {
+                  Alert.alert("Connection Error", "An unexpected error occurred.");
+                }
+              } 
+    };
   const loadProfile = async () => {
     const token = await SecureStore.getItemAsync("access");
     try{
@@ -98,7 +199,13 @@ const handleLanguagePress = () => {
 
     
   };
-  //component ekrana geldikten sonra çalıştır
+    const onRefresh = async () => {
+    setRefreshing(true);
+
+    await loadProfile();
+
+    setRefreshing(false);
+  };
   useEffect(() => {
     loadProfile();
     }, []);
@@ -118,9 +225,17 @@ const handleLanguagePress = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#3C80F7"
+          />
+        }>
       
-        
-    
+
         <View style={styles.header}>
           <ThemedText style={[styles.headerTitle, { color: theme.text }]}>{t("profile")}</ThemedText>
         </View>
@@ -128,10 +243,28 @@ const handleLanguagePress = () => {
 
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: 'https://unsplash.com' }}
-              style={styles.avatar}
-            />
+            <TouchableOpacity
+    style={styles.avatarWrapper}
+    activeOpacity={0.8}
+    onPress={pickImage}
+  >
+    <Image
+      source={
+        user.image
+          ? { uri: user.image }
+          : require("../../assets/images/default-profile.png")
+      }
+      style={styles.avatar}
+    />
+
+    <View style={styles.editButton}>
+      <Feather
+        name="camera"
+        size={16}
+        color="#FFF"
+      />
+    </View>
+  </TouchableOpacity>
           </View>
           <ThemedText style={[styles.userName, { color: theme.text }]}>{user.name}</ThemedText>
           <ThemedText style={[styles.userEmail, { color: theme.subText }]}>{user.email}</ThemedText>
@@ -178,6 +311,7 @@ const handleLanguagePress = () => {
           <Feather name="log-out" size={18} color="#D93025" />
           <ThemedText style={styles.logoutButtonText}>{t("logout")}</ThemedText>
         </TouchableOpacity>
+      </ScrollView>
 
       
     </SafeAreaView>
@@ -207,6 +341,72 @@ const darkTheme = {
 
 // Ortak Stil Tanımlamaları
 const styles = StyleSheet.create({
+  avatarWrapper: {
+  position: "relative",
+},
+
+editButton: {
+  position: "absolute",
+
+  right: -2,
+  bottom: -2,
+
+  width: 38,
+  height: 38,
+
+  borderRadius: 19,
+
+  backgroundColor: "#3C80F7",
+
+  justifyContent: "center",
+  alignItems: "center",
+
+  borderWidth: 3,
+  borderColor: "#FFF",
+
+  elevation: 5,
+
+  shadowColor: "#000",
+  shadowOpacity: 0.25,
+  shadowRadius: 5,
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+},
+scrollContent: {
+    paddingBottom: 30,
+  },
+avatar: {
+  width: 130,
+  height: 130,
+  borderRadius: 65,
+
+  borderWidth: 4,
+  borderColor: "#3C80F7",
+
+  backgroundColor: "#ECECEC",
+},
+
+cameraButton: {
+  position: "absolute",
+
+  right: 0,
+  bottom: 0,
+
+  width: 40,
+  height: 40,
+
+  borderRadius: 20,
+
+  backgroundColor: "#3C80F7",
+
+  justifyContent: "center",
+  alignItems: "center",
+
+  borderWidth: 3,
+  borderColor: "#FFF",
+},
   container: {
     flex: 1,
   },
@@ -226,11 +426,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
+  
   userName: {
     fontSize: 20,
     fontWeight: '600',

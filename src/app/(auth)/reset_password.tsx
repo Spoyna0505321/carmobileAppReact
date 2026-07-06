@@ -1,12 +1,13 @@
 import { ThemedText } from '@/components/themed-text';
+import { Asset } from 'expo-asset';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Link, SplashScreen, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Image, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../ThemeContext';
-
+SplashScreen.preventAutoHideAsync();
 export default function ResetPasswordScreen() {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -15,6 +16,32 @@ export default function ResetPasswordScreen() {
   const [emailError, setEmailError] = useState('');
 
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
+    useEffect(() => {
+      async function prepare() {
+        try {
+          await Asset.loadAsync([
+            require("../../assets/images/loginBg.png"),
+            require("../../assets/images/Car2.png"),
+          ]);
+        } catch (e) {
+          console.warn(e);
+        } finally {
+          setIsReady(true);
+        }
+      }
+  
+      prepare();
+    }, []);
+      useEffect(() => {
+      if (isReady) {
+        SplashScreen.hide();
+      }
+    }, [isReady]);
+  
+    if (!isReady) {
+      return null;
+    }
 
   const reset_password = async () => {
     const controller = new AbortController();

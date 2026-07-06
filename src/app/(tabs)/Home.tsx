@@ -28,7 +28,6 @@ export default function Home() {
   const [carname,setcarname]= useState("");
   const { t } = useTranslation();
   const slideAnim = useRef(new Animated.Value(width)).current; 
-
     const loadProfile = async () => {
       const controller = new AbortController();
         const timeout = setTimeout(() => {
@@ -78,7 +77,7 @@ export default function Home() {
   
       
     };
-    const onRefresh = async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
 
     await loadProfile();
@@ -166,7 +165,7 @@ export default function Home() {
               <Feather name={isLocked ? "lock" : "unlock"} size={22} color="#FFF" />
             </View>
             <Text style={[styles.controlLabel, { color: theme.text }]}>
-               {isLocked ? t("unlockDoors") : t("lockDoors")}
+               {isLocked ? t("openDoors") : t("closeDoors")}
             </Text>
           </TouchableOpacity>
 
@@ -179,7 +178,7 @@ export default function Home() {
               <Feather name="sun" size={22} color="#FFF" />
             </View>
             <Text style={[styles.controlLabel, { color: theme.text }]}>
-              {isLightsOn ? t("lightsOff") : t("lightsOn")}
+              {isLightsOn ? t("turnLightsOff") : t("turnLightsOn")}
             </Text>
           </TouchableOpacity>
 
@@ -192,7 +191,7 @@ export default function Home() {
               <Feather name="wind" size={22} color="#FFF" />
             </View>
             <Text style={[styles.controlLabel, { color: theme.text }]}>
-              {isClimateOn ? t("climateOff") : t("climateOn")}
+              {isClimateOn ? t("turnClimateOff") : t("turnClimateOn")}
             </Text>
           </TouchableOpacity>
 

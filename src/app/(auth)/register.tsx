@@ -1,16 +1,18 @@
 import { ThemedText } from '@/components/themed-text';
+import { Asset } from 'expo-asset';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link, useRouter } from "expo-router";
-import React, { useState } from 'react';
+import { Link, SplashScreen, useRouter } from "expo-router";
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Image, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, Image, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../ThemeContext';
-
+SplashScreen.preventAutoHideAsync();
 export default function RegisterScreen() {
   const { t } = useTranslation();
   const { theme } = useTheme();
-
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,54 @@ export default function RegisterScreen() {
   const [nameError, setnameError] = useState("");
 
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await Asset.loadAsync([
+          require("../../assets/images/loginBg.png"),
+          require("../../assets/images/Car2.png"),
+        ]);
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setIsReady(true);
+      }
+    }
 
+    prepare();
+  }, []);
+    useEffect(() => {
+    if (isReady) {
+      SplashScreen.hide();
+    }
+  }, [isReady]);
+
+  if (!isReady) {
+    return null;
+  }
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+       setImage(result.assets[0]);
+    }
+  };
+  
   const register = async () => {
     const controller = new AbortController();
     let valid = true;
@@ -28,7 +77,7 @@ export default function RegisterScreen() {
     setEmailError('');
     setpasswordError("");
     setnameError("");
-
+    const formData = new FormData();
     if (email.trim() == "") {
       setEmailError(t("emailRequired"));
       valid = false;
@@ -58,12 +107,23 @@ export default function RegisterScreen() {
     }, 10000);
 
     try {
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("password", password);
+      if (image) {
+          formData.append(
+              "image",
+              {
+                  uri: image.uri,
+                  name: image.fileName ?? "profile.jpg",
+                  type: image.mimeType ?? "image/jpeg",
+              } as any
+          );
+      }
+      console.log(image)
       const response = await fetch("http://192.168.1.138:8080/api/register/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, name }),
+        body: formData,
         signal: controller.signal
       });
 
@@ -119,6 +179,10 @@ export default function RegisterScreen() {
               resizeMode="contain"
             />
           </View>
+              <View style={styles.logoContainer}>
+                <Button title="Pick an image from camera roll" onPress={pickImage} />
+                {image && <Image source={{ uri: image.uri }} style={styles.image} />}
+              </View>
 
           <ThemedText style={[styles.title, { color: theme.text }]}>
             {t("registerTitle")}
@@ -197,6 +261,10 @@ const styles = StyleSheet.create({
     height: '100%', 
     alignSelf: 'flex-start',
   
+  },
+  image: {
+    width: 200,
+    height: 200,
   },
   MainContainer: {
     flex: 1,
