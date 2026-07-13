@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -62,9 +63,8 @@ export default function Home() {
           return;
         } 
           const data = await response.json();
-          console.log(response.status);
-          console.log(data);
           setcarname(data.car_model)
+       
   
       }catch (error: any) {
             clearTimeout(timeout);
@@ -85,16 +85,16 @@ export default function Home() {
     setRefreshing(false);
   };
    
-  
-  useEffect(() => {
-    loadProfile();
-    Animated.timing(slideAnim, {
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+      Animated.timing(slideAnim, {
       toValue: 0,
       duration: 1000,
       useNativeDriver: true,
     }).start();
-  }, []);
-
+    }, [])
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>

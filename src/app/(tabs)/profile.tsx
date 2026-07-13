@@ -43,6 +43,7 @@ const handleLanguagePress = () => {
 };
   const [refreshing, setRefreshing] = useState(false);
   const controller = new AbortController();
+  const [hasPermission, setHasPermission] = useState(false);
   const [userError,setuserError] = useState("");
   const [user, setUser] = useState<any>(null);
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
@@ -50,11 +51,16 @@ const handleLanguagePress = () => {
   const timeout = setTimeout(() => {
       controller.abort();
     }, 10000);
-
+  useEffect(() => {
+  (async () => {
+     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+     setHasPermission(permission.granted);
+  })();
+  }, []);
   const pickImage = async () => {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+   
   
-      if (!permissionResult.granted) {
+      if (!hasPermission) {
         Alert.alert('Permission required', 'Permission to access the media library is required.');
         return;
       }
@@ -85,21 +91,19 @@ const handleLanguagePress = () => {
         Alert.alert("Bilgi", "Bu fotoğraf zaten seçili.");
         return;
       }
-
-      // State'i güncelle
-      setImage(asset);
-
       const formData = new FormData();
-      if (image) {
+      console.log(asset);
+      if (asset) {
           formData.append(
               "image",
               {
-                  uri: image.uri,
-                  name: image.fileName ?? "profile.jpg",
-                  type: image.mimeType ?? "image/jpeg",
+                  uri: asset.uri,
+                  name: asset.fileName ?? "profile.jpg",
+                  type: asset.mimeType ?? "image/jpeg",
               } as any
           );
       }
+      setImage(asset);
       const token = await SecureStore.getItemAsync("access");
           const controller = new AbortController();
           const timeout = setTimeout(() => {
@@ -140,7 +144,7 @@ const handleLanguagePress = () => {
               return;
             } 
             const data = await response.json();
-            router.replace('/(tabs)/Home');
+            await onRefresh();
               
           }catch (error: any) {
              

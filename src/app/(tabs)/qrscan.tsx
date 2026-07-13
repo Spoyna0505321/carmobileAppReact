@@ -61,6 +61,7 @@ export default function QrScan() {
         return;
       } 
       const data = await response.json();
+      setScanned(false);
       router.replace('/(tabs)/Home');
         
     }catch (error: any) {
